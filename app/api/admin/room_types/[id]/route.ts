@@ -8,7 +8,7 @@ import {
   reservations,
   reservationRooms,
 } from "@/lib/db/schema";
-import { eq, notInArray, inArray } from "drizzle-orm";
+import { and, eq, notInArray, inArray } from "drizzle-orm";
 import { uploadImageFromBuffer } from "@/lib/cloudinary";
 
 export async function GET(
@@ -77,8 +77,12 @@ export async function PATCH(
   if (remainingImages.length > 0) {
     await database
       .delete(roomTypeImages)
-      .where(eq(roomTypeImages.roomTypeId, roomTypeId))
-      .where(notInArray(roomTypeImages.id, remainingImages));
+      .where(
+        and(
+          eq(roomTypeImages.roomTypeId, roomTypeId),
+          notInArray(roomTypeImages.id, remainingImages),
+        ),
+      );
   }
 
   /* 3️⃣ RESET PRIMARY IMAGE */
