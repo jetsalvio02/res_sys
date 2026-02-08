@@ -5,15 +5,18 @@ import { eq } from "drizzle-orm";
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { imageId: string } },
+  { params }: { params: Promise<{ imageId: string }> },
 ) {
   //   const image = await database.query.roomTypeImages.findFirst({
   //     where: eq(roomTypeImages.id, Number(params.imageId)),
   //   });
+
+  const imageId = (await params).imageId;
+
   const images = await database
     .select()
     .from(roomTypeImages)
-    .where(eq(roomTypeImages.id, Number(params.imageId)));
+    .where(eq(roomTypeImages.id, Number(imageId)));
 
   const image = images[0];
 

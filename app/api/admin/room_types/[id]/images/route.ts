@@ -5,17 +5,19 @@ import { desc, eq } from "drizzle-orm";
 
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   //   const images = await db.query.roomTypeImages.findMany({
   //     where: eq(roomTypeImages.roomTypeId, Number(params.id)),
   //     orderBy: (img, { desc }) => [desc(img.isPrimary)],
   //   });
 
+  const id = (await params).id;
+
   const images = await database
     .select()
     .from(roomTypeImages)
-    .where(eq(roomTypeImages.roomTypeId, Number(params.id)))
+    .where(eq(roomTypeImages.roomTypeId, Number(id)))
     .orderBy(desc(roomTypeImages.isPrimary));
 
   return NextResponse.json(images);
@@ -23,19 +25,21 @@ export async function GET(
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { imageUrl, isPrimary } = await req.json();
+
+  const id = (await params).id;
 
   if (isPrimary) {
     await database
       .update(roomTypeImages)
       .set({ isPrimary: false })
-      .where(eq(roomTypeImages.roomTypeId, Number(params.id)));
+      .where(eq(roomTypeImages.roomTypeId, Number(id)));
   }
 
   await database.insert(roomTypeImages).values({
-    roomTypeId: Number(params.id),
+    roomTypeId: Number(id),
     imageUrl,
     isPrimary: isPrimary ?? false,
   });

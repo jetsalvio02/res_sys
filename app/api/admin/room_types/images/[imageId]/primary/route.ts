@@ -5,12 +5,14 @@ import { eq } from "drizzle-orm";
 
 export async function PATCH(
   _req: Request,
-  { params }: { params: { imageId: string } },
+  { params }: { params: Promise<{ imageId: string }> },
 ) {
+  const imageId = (await params).imageId;
+
   const images = await database
     .select()
     .from(roomTypeImages)
-    .where(eq(roomTypeImages.id, Number(params.imageId)));
+    .where(eq(roomTypeImages.id, Number(imageId)));
 
   const image = images[0];
 
